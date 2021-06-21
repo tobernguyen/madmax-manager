@@ -1,5 +1,5 @@
-# MadMax Plotter Manager
-Lightweight manager (zero dependencies) for [MadMax Plotter](https://github.com/madMAx43v3r/chia-plotter).
+# MadMax's Chia Plotter Manager
+Lightweight manager (zero dependencies) for [madMAx43v3r/chia-plotter](https://github.com/madMAx43v3r/chia-plotter).
 
 **Note: project is currently in alpha stage and still under active development.**
 
