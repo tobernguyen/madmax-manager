@@ -1,0 +1,12 @@
+# Plot Manager Configurations
+log_dir="./" # Directory to store all chia_plot logs
+tmp_1_dir="/mnt/tmp1/"
+tmp_2_dir="/mnt/tmp2/"
+destination_dirs="/mnt/HDD_001/plots/,/mnt/HDD_002/plots/" # Destination directories separated by comma (,)
+pool_public_key=""
+farmer_public_key=""
+number_of_plots="0" # Set to 0 to let the script automatically calculate the maximum number of plots to fill the destination directory
+number_of_threads="4"
+number_of_buckets="128"
+auto_clean_tmp_dirs_on_start="true" # Auto empties tmp_1_dir and tmp_2_dir before starting the plotter
+auto_restart_on_crash="true"        # Auto restart the plotter when it crashed
