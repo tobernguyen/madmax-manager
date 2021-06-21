@@ -11,7 +11,7 @@ fi
 
 # Load configurations
 if [[ ! -f config.ini ]]; then
-  echo "Couldn't find config.json. Please create config.json from config.json.example and set appropriate values."
+  echo "Couldn't find config.ini. Please create config.ini from config.ini.example and set appropriate values."
 fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 # shellcheck source=config.ini.example
@@ -21,7 +21,7 @@ source "$SCRIPT_DIR"/config.ini
 dir_types=(log_dir tmp_1_dir tmp_2_dir)
 for dir_type in "${dir_types[@]}"; do
   if [[ -z "${!dir_type}" ]]; then
-    echo "Missing value for $dir_type. Please set it in config.json file."
+    echo "Missing value for $dir_type. Please set it in config.ini file."
     exit 1
   fi
   if [[ ! "${!dir_type}" == */ ]]; then
@@ -43,7 +43,7 @@ for dest_dir in $destination_dirs; do
   ((num_of_dest_dirs+=1))
 done
 if [[ "$num_of_dest_dirs" -lt "1" ]]; then
-  echo "Must have at least one destination dir. Please set it in config.json file."
+  echo "Must have at least one destination dir. Please set it in config.ini file."
   exit 1
 fi
 
@@ -51,7 +51,7 @@ fi
 required_keys=(pool_public_key farmer_public_key)
 for key in "${required_keys[@]}"; do
   if [[ -z "${!key}" ]]; then
-    echo "Missing value for $key. Please set it in config.json file."
+    echo "Missing value for $key. Please set it in config.ini file."
     exit 1
   fi
 done
