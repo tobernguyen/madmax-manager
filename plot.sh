@@ -2,7 +2,14 @@
 
 set -e
 
-PLOT_SIZE_IN_BYTES=108900000000 # Maximum size for a k32 plot in bytes
+PLOT_SIZE_IN_KBYTES=108900000 # Maximum size for a k32 plot in kilobytes
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+dir_resolve()
+{
+  cd "$1" 2>/dev/null || return $?  # cd to desired directory; if fail, quell any error messages but return exit status
+  pwd -P # output full, link-resolved path
+}
 
 if ! chia_plot --help &> /dev/null; then
   echo "Couldn't find chia_plot in your PATH. Please make sure the MadMax chia_plot binary is installed and you can run \"chia_plot\" in your shell."
@@ -13,7 +20,6 @@ fi
 if [[ ! -f config.ini ]]; then
   echo "Couldn't find config.ini. Please create config.ini from config.ini.example and set appropriate values."
 fi
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 # shellcheck source=config.ini.example
 source "$SCRIPT_DIR"/config.ini
 
@@ -64,8 +70,8 @@ for dest_dir in $destination_dirs; do
 
     if [[ "$number_of_plots" -lt "1" ]]; then
       echo "Number of plot is set to 0. The manager will try to calculate and fill up all destination dirs."
-      dest_dir_available_bytes=$(df --output=avail -B 1 "$dest_dir" | tail -n 1)
-      number_of_plots=$((dest_dir_available_bytes / PLOT_SIZE_IN_BYTES))
+      dest_dir_available_kbytes=$(df -k "$dest_dir" | awk '$3 ~ /[0-9]+/ { print $4 }')
+      number_of_plots=$((dest_dir_available_kbytes / PLOT_SIZE_IN_KBYTES))
       echo "Number of plots for $dest_dir: $number_of_plots"
     fi
     if [[ "$number_of_plots" -lt "1" ]]; then
@@ -83,7 +89,10 @@ for dest_dir in $destination_dirs; do
     [[ -n "${number_of_buckets:-}" ]] && args+=(-u "$number_of_buckets")
 
     plot_job_id=$(date +"%Y-%m-%d_%H-%M-%S_%Z")
-    log_file_name=${plot_job_id}.log
+    # shellcheck disable=SC2154
+    log_file_path=$(dir_resolve "$log_dir")/${plot_job_id}.log
+    # Create screen configuration file
+    printf "deflog on\nlog on\nlogfile %s\nlogfile flush 5" "$log_file_path" > /tmp/madmax-manager-screen.conf
     if [[ "$auto_clean_tmp_dirs_on_start" == "true" ]]; then
       echo "Cleaning up tmp dirs..."
       rm -rf "${tmp_1_dir}"*
@@ -92,17 +101,15 @@ for dest_dir in $destination_dirs; do
     plotter_command=$(IFS=' ';printf 'chia_plot %s' "${args[*]}")
     echo "Starting plotter: ${plotter_command}"
     # shellcheck disable=SC2154
-    screen -dmL -S "plot_${plot_job_id}" -Logfile "${log_dir}${log_file_name}"
-    until screen -ls | grep -q "plot_${plot_job_id}"; do
-      sleep 1
-    done
-    screen -S "plot_${plot_job_id}" -p 0 -X stuff "${plotter_command} && echo \"=====JOB EXITED SUCCESS=====\" || echo \"=====JOB EXITED FAILURE=====\"^M"
+    screen -c /tmp/madmax-manager-screen.conf -dmLS "plot_${plot_job_id}" bash -c "${plotter_command} && echo \"=====JOB EXITED SUCCESS=====\" || echo \"=====JOB EXITED FAILURE=====\""
+    
+    # Sleep 6 seconds so the logfile is flushed 
+    sleep 6
     while IFS= read -r LOGLINE || [[ -n "$LOGLINE" ]]; do
       printf '%s\n' "$LOGLINE"
       if [[ "${LOGLINE}" =~ ^"=====JOB EXITED SUCCESS=====" ]]; then
         echo "Finished plotting into $dest_dir successfully."
         done_plotting=true
-        screen -X -S "plot_${plot_job_id}" kill
         break
       fi
       if [[ "${LOGLINE}" =~ ^"=====JOB EXITED FAILURE=====" ]]; then
@@ -114,9 +121,8 @@ for dest_dir in $destination_dirs; do
         else
           echo "Auto restart on crash set to true. Restarting the plotter..."
         fi
-        screen -X -S "plot_${plot_job_id}" kill
         break
       fi
-    done < <(tail -f "${log_dir}${log_file_name}")
+    done < <(tail -f "$log_file_path")
   done
 done
