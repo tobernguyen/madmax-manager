@@ -17,7 +17,7 @@ git clone https://github.com/tobernguyen/madmax-manager.git
 cd madmax-manager
 ```
 
-Copy the `[config.init.example](./config.ini.example)` to `config.ini`
+Copy the [`config.ini.example`](./config.ini.example) to `config.ini`
 ```bash
 cp config.ini.example config.ini
 ```
