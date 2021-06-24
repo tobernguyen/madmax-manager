@@ -1,5 +1,5 @@
 # MadMax's Chia Plotter Manager
-Lightweight manager (zero dependencies) for [madMAx43v3r/chia-plotter](https://github.com/madMAx43v3r/chia-plotter).
+Lightweight manager (zero dependencies) for [madMAx43v3r/chia-plotter](https://github.com/madMAx43v3r/chia-plotter). Support both Linux (Ubuntu, CentOS, etc.) and Unix (macOS).
 
 **Note: project is currently in alpha stage and still under active development.**
 
@@ -8,7 +8,7 @@ Lightweight manager (zero dependencies) for [madMAx43v3r/chia-plotter](https://g
 - Auto calculate the number of plots for each destination directory
 - Auto clear all tmp dirs before plotting
 - Auto restart on plotter crash
-- Tested on Ubuntu but should work on other Linux OS (please submit an issue if it doesn't work for you)
+- Tested on Ubuntu and macOS but should work on all Linux Distros as well (please submit an issue if it doesn't work for you)
 
 ## Usage
 Clone the repository
@@ -31,7 +31,7 @@ Modify the `config.ini` to your need then run the manager
 - [ ] Run the manager in the background
 - [ ] More manager controls: stop, kill jobs, pause/resume jobs
 - [ ] Auto start on system startup (systemd for Ubuntu)
-- [ ] Support MacOS and Windows
+- [ ] Support Windows
 - [ ] One step installation script
 - [ ] Push notifications on events
 - [ ] Logs analyzer
