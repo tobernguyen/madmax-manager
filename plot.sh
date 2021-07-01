@@ -68,17 +68,20 @@ for dest_dir in $destination_dirs; do
   while [ "$done_plotting" != "true" ]; do
     args=()
 
+    current_dir_number_of_plots=0
     if [[ "$number_of_plots" -lt "1" ]]; then
       echo "Number of plot is set to 0. The manager will try to calculate and fill up all destination dirs."
       dest_dir_available_kbytes=$(df -k "$dest_dir" | awk '$3 ~ /[0-9]+/ { print $4 }')
-      number_of_plots=$((dest_dir_available_kbytes / PLOT_SIZE_IN_KBYTES))
-      echo "Number of plots for $dest_dir: $number_of_plots"
+      current_dir_number_of_plots=$((dest_dir_available_kbytes / PLOT_SIZE_IN_KBYTES))
+      echo "Number of plots for $dest_dir: $current_dir_number_of_plots"
+    else
+      current_dir_number_of_plots=$number_of_plots
     fi
-    if [[ "$number_of_plots" -lt "1" ]]; then
+    if [[ "$current_dir_number_of_plots" -lt "1" ]]; then
       echo "Skip destination dir $dest_dir because it couldn't fit any new plot."
       break
     fi
-    args+=(-n "$number_of_plots")
+    args+=(-n "$current_dir_number_of_plots")
     args+=(-p "$pool_public_key")
     args+=(-f "$farmer_public_key")
     args+=(-t "$tmp_1_dir")
