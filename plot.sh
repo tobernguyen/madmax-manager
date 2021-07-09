@@ -82,12 +82,13 @@ for dest_dir in $destination_dirs; do
       break
     fi
     args+=(-n "$current_dir_number_of_plots")
-    args+=(-p "$pool_public_key")
     args+=(-f "$farmer_public_key")
     args+=(-t "$tmp_1_dir")
     args+=(-2 "$tmp_2_dir")
     args+=(-d "$dest_dir")
 
+    [[ -n "${pool_public_key:-}" ]] && args+=(-p "$pool_public_key")
+    [[ -n "${pool_contract_address:-}" ]] && args+=(-c "$pool_contract_address")
     [[ -n "${number_of_threads:-}" ]] && args+=(-r "$number_of_threads")
     [[ -n "${number_of_buckets:-}" ]] && args+=(-u "$number_of_buckets")
 

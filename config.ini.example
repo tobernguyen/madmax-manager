@@ -5,6 +5,7 @@ tmp_2_dir="/mnt/tmp2/"
 destination_dirs="/mnt/HDD_001/plots/,/mnt/HDD_002/plots/" # Destination directories separated by comma (,)
 pool_public_key=""
 farmer_public_key=""
+pool_contract_address=""
 number_of_plots="0" # Set to 0 to let the script automatically calculate the maximum number of plots to fill the destination directory
 number_of_threads="4"
 number_of_buckets="128"
