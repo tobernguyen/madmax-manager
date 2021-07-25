@@ -2,7 +2,7 @@
 
 set -e
 
-PLOT_SIZE_IN_KBYTES=108900000 # Maximum size for a k32 plot in kilobytes
+PLOT_SIZE_IN_KBYTES=108890000 # Maximum size for a k32 plot in kilobytes
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 dir_resolve()
@@ -54,7 +54,7 @@ if [[ "$num_of_dest_dirs" -lt "1" ]]; then
 fi
 
 # Check required configs
-required_keys=(pool_public_key farmer_public_key)
+required_keys=(farmer_public_key)
 for key in "${required_keys[@]}"; do
   if [[ -z "${!key}" ]]; then
     echo "Missing value for $key. Please set it in config.ini file."
@@ -106,8 +106,8 @@ for dest_dir in $destination_dirs; do
     echo "Starting plotter: ${plotter_command}"
     # shellcheck disable=SC2154
     screen -c /tmp/madmax-manager-screen.conf -dmLS "plot_${plot_job_id}" bash -c "${plotter_command} && echo \"=====JOB EXITED SUCCESS=====\" || echo \"=====JOB EXITED FAILURE=====\""
-    
-    # Sleep 6 seconds so the logfile is flushed 
+
+    # Sleep 6 seconds so the logfile is flushed
     sleep 6
     while IFS= read -r LOGLINE || [[ -n "$LOGLINE" ]]; do
       printf '%s\n' "$LOGLINE"
