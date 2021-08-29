@@ -63,7 +63,18 @@ for key in "${required_keys[@]}"; do
 done
 
 # Start the plotter
+if [[ -n "${FETCH_DESTINATION_FROM_REMOTE:-}" ]]; then
+  destination_dirs=$(ssh lan@192.168.0.150 -i /home/long/.ssh/id_rsa cat /home/lan/plotter_"${PLOTTER_ID}"_remote_mounts)
+fi
 for dest_dir in $destination_dirs; do
+  if [[ -n "${FETCH_DESTINATION_FROM_REMOTE:-}" ]]; then
+    # Umount current /mnt/remote-nplots/ and re-mount to a remote_dest_dir
+    umount -f /mnt/remote-nplots || true
+    sleep 5
+    sshfs lan@192.168.0.150:"${dest_dir}/nplots" /mnt/remote-nplots -o idmap=user,allow_other,reconnect,IdentityFile=/home/long/.ssh/id_rsa,ServerAliveInterval=15,ServerAliveCountMax=3
+    dest_dir=/mnt/remote-nplots/
+  fi
+
   done_plotting=false
   while [ "$done_plotting" != "true" ]; do
     args=()
@@ -114,6 +125,10 @@ for dest_dir in $destination_dirs; do
       if [[ "${LOGLINE}" =~ ^"=====JOB EXITED SUCCESS=====" ]]; then
         echo "Finished plotting into $dest_dir successfully."
         done_plotting=true
+        sleep 60
+
+        # shellcheck source=plot.sh
+        source plot.sh
         break
       fi
       if [[ "${LOGLINE}" =~ ^"=====JOB EXITED FAILURE=====" ]]; then
